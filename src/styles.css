@@ -1,0 +1,67 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --primary: #6345ed;
+  --primary-hover: #5033db;
+  --primary-light: #f0edff;
+  --dark: #0f172a;
+  --text-main: #1e293b;
+  --text-muted: #64748b;
+  --bg-light: #f8fafc;
+  --white: #ffffff;
+  --border-light: #e2e8f0;
+  --shadow-sm: 0 4px 20px rgba(99, 69, 237, 0.06);
+  --shadow-md: 0 12px 36px rgba(99, 69, 237, 0.12);
+  --shadow-lg: 0 20px 50px rgba(15, 23, 42, 0.08);
+  --font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: var(--font-family);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--white);
+  color: var(--text-main);
+  overflow-x: hidden;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  font-family: var(--font-family);
+}
+
+.purple-text {
+  color: var(--primary) !important;
+}
+
+.section-tag {
+  color: var(--primary);
+  font-weight: 800;
+  font-size: 0.8rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 0.8rem;
+}
+
+.section-tag::before,
+.section-tag::after {
+  content: "•";
+  color: var(--primary);
+}
