@@ -1,21 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { GithubService, DynamicProject } from '../../services/github.service';
 
-export interface Project {
-  id: string;
-  title: string;
-  category: 'Full-Stack' | 'Python & Django' | 'Bots & Automation' | 'Systems & C' | 'Web Design';
-  categoryLabel: string;
-  tagline: string;
-  description: string;
-  image: string;
-  gradient?: string;
-  tags: string[];
-  liveUrl?: string;
-  githubUrl: string;
-  featured: boolean;
-  status: 'Live' | 'Production' | 'Open Source';
-}
+export interface Project extends DynamicProject {}
 
 @Component({
   selector: 'app-projects',
@@ -24,8 +11,11 @@ export interface Project {
   templateUrl: './projects.html',
   styleUrls: ['./projects.css']
 })
-export class ProjectsComponent {
+export class ProjectsComponent implements OnInit {
   activeCategory: string = 'All';
+  isLoading = false;
+  isSyncing = false;
+  lastSyncedText = 'Auto-synced with GitHub';
 
   categories = [
     { id: 'All', label: 'All Projects' },
@@ -36,7 +26,7 @@ export class ProjectsComponent {
     { id: 'Web Design', label: 'Web Design' }
   ];
 
-  projects: Project[] = [
+  curatedProjects: Project[] = [
     {
       id: 'hostel-kutus',
       title: 'Hostel Kutus Discovery & Booking',
@@ -53,7 +43,7 @@ export class ProjectsComponent {
       status: 'Live'
     },
     {
-      id: 'front-app',
+      id: 'front',
       title: 'Front - Modern UI Web Platform',
       category: 'Full-Stack',
       categoryLabel: 'Full-Stack & Web',
@@ -68,7 +58,7 @@ export class ProjectsComponent {
       status: 'Live'
     },
     {
-      id: 'hostelbooking-django',
+      id: 'hostelbooking',
       title: 'Django Hotel & Hostel Reservation',
       category: 'Python & Django',
       categoryLabel: 'Python & Django',
@@ -83,7 +73,7 @@ export class ProjectsComponent {
       status: 'Live'
     },
     {
-      id: 'whatsapp-bot',
+      id: 'bot',
       title: 'WhatsApp Automation Bot Suite',
       category: 'Bots & Automation',
       categoryLabel: 'Bots & Automation',
@@ -98,7 +88,7 @@ export class ProjectsComponent {
       status: 'Open Source'
     },
     {
-      id: 'kitchenware-shop',
+      id: 'my_kitchenwareshop',
       title: 'Kitchenware E-Commerce Store',
       category: 'Python & Django',
       categoryLabel: 'Python & Django',
@@ -112,7 +102,7 @@ export class ProjectsComponent {
       status: 'Production'
     },
     {
-      id: 'kogo-web',
+      id: 'kogo-',
       title: 'Kogo Digital Web Space',
       category: 'Full-Stack',
       categoryLabel: 'Full-Stack & Web',
@@ -127,7 +117,7 @@ export class ProjectsComponent {
       status: 'Live'
     },
     {
-      id: 'cypherx-bot',
+      id: 'CypherX',
       title: 'CypherX Multi-Device Suite',
       category: 'Bots & Automation',
       categoryLabel: 'Bots & Automation',
@@ -142,7 +132,7 @@ export class ProjectsComponent {
       status: 'Live'
     },
     {
-      id: 'python-scripts',
+      id: 'Python-project-Scripts',
       title: 'Python Automation & Scripts Suite',
       category: 'Python & Django',
       categoryLabel: 'Python & Django',
@@ -171,7 +161,7 @@ export class ProjectsComponent {
       status: 'Open Source'
     },
     {
-      id: 'winnie-app',
+      id: 'winnie',
       title: 'Winnie Interactive Web Design',
       category: 'Web Design',
       categoryLabel: 'Web Design',
@@ -186,7 +176,7 @@ export class ProjectsComponent {
       status: 'Live'
     },
     {
-      id: 'hardware-guide',
+      id: 'hardware',
       title: 'Hardware & Computing Architecture',
       category: 'Systems & C',
       categoryLabel: 'Systems (C)',
@@ -200,7 +190,7 @@ export class ProjectsComponent {
       status: 'Open Source'
     },
     {
-      id: 'kogo-portfolio-app',
+      id: 'kogo-profolio',
       title: 'Nehemiah Kiplagat Portfolio App',
       category: 'Full-Stack',
       categoryLabel: 'Full-Stack & Web',
@@ -215,6 +205,43 @@ export class ProjectsComponent {
       status: 'Live'
     }
   ];
+
+  projects: Project[] = [];
+
+  constructor(private githubService: GithubService) {
+    this.projects = [...this.curatedProjects];
+  }
+
+  async ngOnInit(): Promise<void> {
+    await this.loadProjects();
+  }
+
+  async loadProjects(): Promise<void> {
+    this.isLoading = true;
+    try {
+      const result = await this.githubService.getProjects(this.curatedProjects);
+      this.projects = result.projects;
+      this.lastSyncedText = `Auto-synced with GitHub (${this.formatTime(result.lastSynced)})`;
+    } catch {
+      this.projects = this.curatedProjects;
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  async syncNow(): Promise<void> {
+    if (this.isSyncing) return;
+    this.isSyncing = true;
+    try {
+      const result = await this.githubService.forceRefresh(this.curatedProjects);
+      this.projects = result.projects;
+      this.lastSyncedText = `Just updated (${this.formatTime(result.lastSynced)})`;
+    } catch (e) {
+      console.error('Failed to sync now:', e);
+    } finally {
+      this.isSyncing = false;
+    }
+  }
 
   get filteredProjects(): Project[] {
     if (this.activeCategory === 'All') {
@@ -231,5 +258,9 @@ export class ProjectsComponent {
     if (url) {
       window.open(url, '_blank');
     }
+  }
+
+  private formatTime(date: Date): string {
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }
 }
