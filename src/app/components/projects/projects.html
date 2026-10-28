@@ -1,44 +1,129 @@
 <section id="projects" class="portfolio-section">
   <div class="section-header">
-    <p class="section-tag">MY PORTFOLIO</p>
+    <p class="section-tag">FEATURED WORK & REPOSITORIES</p>
     <h2 class="section-title">
-      My Latest Project<br>
+      My Real-World Projects<br>
       That <span class="purple-text">Live On The Net.</span>
     </h2>
+    <p class="section-subtitle">
+      Explore full-stack web platforms, Python/Django backends, automation bots, and system applications built by Nehemiah Kiplagat (&#64;kogo198).
+    </p>
   </div>
 
+  <!-- Category Filter Tabs -->
+  <div class="filter-tabs-wrapper">
+    <div class="filter-tabs">
+      <button 
+        *ngFor="let cat of categories" 
+        class="filter-tab-btn" 
+        [class.active]="activeCategory === cat.id"
+        (click)="setCategory(cat.id)">
+        <span>{{ cat.label }}</span>
+        <span class="tab-count" *ngIf="cat.id === 'All'">{{ projects.length }}</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Projects Grid -->
   <div class="portfolio-grid">
-    <div class="project-card" *ngFor="let project of projects">
-      <div class="project-image-holder">
+    <article class="project-card" *ngFor="let project of filteredProjects">
+      <div class="project-image-holder" [style.background]="project.gradient">
         <img [src]="project.image" [alt]="project.title" class="project-img" />
+        
+        <!-- Status Badge -->
+        <div class="status-badge" [class.status-live]="project.status === 'Live'" [class.status-oss]="project.status === 'Open Source'">
+          <span class="status-dot"></span>
+          <span>{{ project.status }}</span>
+        </div>
+
+        <!-- Hover Overlay -->
         <div class="card-overlay">
-          <button class="arrow-diagonal-btn" aria-label="View Project">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="7" y1="17" x2="17" y2="7"></line>
-              <polyline points="7 7 17 7 17 17"></polyline>
-            </svg>
-          </button>
+          <div class="overlay-actions">
+            <button 
+              *ngIf="project.liveUrl" 
+              class="overlay-btn live-btn" 
+              (click)="openUrl(project.liveUrl)" 
+              title="Visit Live Application"
+              aria-label="Visit Live Application">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                <polyline points="15 3 21 3 21 9"></polyline>
+                <line x1="10" y1="14" x2="21" y2="3"></line>
+              </svg>
+              <span>Live Demo</span>
+            </button>
+            <button 
+              class="overlay-btn repo-btn" 
+              (click)="openUrl(project.githubUrl)" 
+              title="View Source on GitHub"
+              aria-label="View Source on GitHub">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+              </svg>
+              <span>Code</span>
+            </button>
+          </div>
         </div>
       </div>
 
       <div class="project-details">
-        <div class="project-info">
-          <h3 class="project-title">{{ project.title }}</h3>
-          <p class="project-category">{{ project.category }}</p>
+        <div class="project-top-row">
+          <span class="category-pill">{{ project.categoryLabel }}</span>
+          <span class="featured-indicator" *ngIf="project.featured">★ Featured</span>
         </div>
-        <button class="card-arrow-small" aria-label="Open">
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-            <polyline points="12 5 19 12 12 19"></polyline>
-          </svg>
-        </button>
+
+        <h3 class="project-title">{{ project.title }}</h3>
+        <p class="project-desc">{{ project.description }}</p>
+
+        <!-- Tech Stack Tags -->
+        <div class="tech-tags-list">
+          <span class="tech-tag" *ngFor="let tag of project.tags">{{ tag }}</span>
+        </div>
+
+        <!-- Footer Action Links -->
+        <div class="card-footer-actions">
+          <a 
+            *ngIf="project.liveUrl" 
+            [href]="project.liveUrl" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            class="card-action-link primary-action">
+            <span>Live Demo</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="7" y1="17" x2="17" y2="7"></line>
+              <polyline points="7 7 17 7 17 17"></polyline>
+            </svg>
+          </a>
+          <a 
+            [href]="project.githubUrl" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            class="card-action-link secondary-action">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+            </svg>
+            <span>GitHub</span>
+          </a>
+        </div>
       </div>
-    </div>
+    </article>
   </div>
 
+  <!-- Bottom CTA to GitHub -->
   <div class="view-all-box">
-    <button class="view-all-btn">
-      <span>VIEW ALL PROJECTS</span>
-    </button>
+    <a 
+      href="https://github.com/kogo198?tab=repositories" 
+      target="_blank" 
+      rel="noopener noreferrer" 
+      class="view-all-btn">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+      </svg>
+      <span>EXPLORE ALL 30+ REPOSITORIES ON GITHUB</span>
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+        <polyline points="12 5 19 12 12 19"></polyline>
+      </svg>
+    </a>
   </div>
 </section>
